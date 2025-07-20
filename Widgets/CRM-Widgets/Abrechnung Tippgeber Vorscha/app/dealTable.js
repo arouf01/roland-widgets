@@ -14,8 +14,8 @@ const createDealTable = (allDealData) => {
       Gesellschaft,
       Closing_Date,
       Punktewert_Kalk,
-      Stornowert_in_CHF,
-      Provision_inkl_Storno,
+      Stornowert_in_CHF_TG,
+      Provision_ausbezahlt_TG,
     } = deal;
 
     // Fallbacks and formatting
@@ -23,8 +23,8 @@ const createDealTable = (allDealData) => {
     let gesellschaft = Gesellschaft?.name || "NA";
     let abschluss = utils.formatDate(Closing_Date) || "NA";
     let chfPunkt = parseFloat(Punktewert_Kalk || 0);
-    let storno = parseFloat(Stornowert_in_CHF || 0);
-    let provision = parseFloat(Provision_inkl_Storno || 0);
+    let storno = parseFloat(Stornowert_in_CHF_TG || 0);
+    let provision = parseFloat(Provision_ausbezahlt_TG || 0);
 
     // Append table row
     let row = document.createElement("tr");
