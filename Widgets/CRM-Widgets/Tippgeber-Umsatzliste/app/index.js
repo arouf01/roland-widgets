@@ -9,7 +9,7 @@ ZOHO.embeddedApp.on("PageLoad", async (data) => {
   // console.log("data : ", data);
 
   // Resize the widget window
-  ZOHO.CRM.UI.Resize({ height: "90%", width: "70%" });
+  ZOHO.CRM.UI.Resize({ height: "100%", width: "100%" });
 
   /* 1st Part */
 

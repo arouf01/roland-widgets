@@ -10,7 +10,7 @@
   }
 })(() => {
   ZOHO.embeddedApp.on("PageLoad", async (data) => {
-    ZOHO.CRM.UI.Resize({ height: "90%", width: "70%" });
+    ZOHO.CRM.UI.Resize({ height: "100%", width: "100%" });
 
     // Format Date
     const formatDate = (dateStr) => {
