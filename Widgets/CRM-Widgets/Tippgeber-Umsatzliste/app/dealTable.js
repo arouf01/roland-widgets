@@ -19,9 +19,9 @@ const createDealTable = (allDealData) => {
     } = deal;
 
     // Fallbacks and formatting
-    let kontakt = Contact_Name?.name || "NA";
-    let gesellschaft = Gesellschaft?.name || "NA";
-    let abschluss = utils.formatDate(Closing_Date) || "NA";
+    let kontakt = Contact_Name?.name || " ";
+    let gesellschaft = Gesellschaft?.name || " ";
+    let abschluss = utils.formatDate(Closing_Date) || " ";
     let chfPunkt = parseFloat(Punktewert_Kalk || 0);
     let storno = parseFloat(Stornowert_in_CHF_TG || 0);
     let provision = parseFloat(Provision_ausbezahlt_TG || 0);

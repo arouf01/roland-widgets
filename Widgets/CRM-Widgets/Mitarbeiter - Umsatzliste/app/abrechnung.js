@@ -45,12 +45,14 @@
         Gesellschaft,
         Closing_Date,
         Stornowert_in_CHF,
+        Tippgeber,
       } = dealData;
 
       // Fallbacks and formatting
-      let kontakt = Contact_Name?.name || "NA";
-      let gesellschaft = Gesellschaft?.name || "NA";
-      let abschluss = formatDate(Closing_Date) || "NA";
+      let kontakt = Contact_Name?.name || " ";
+      let gesellschaft = Gesellschaft?.name || " ";
+      let abschluss = formatDate(Closing_Date) || " ";
+      let tippgeber = Tippgeber?.name || " ";
       let chfPunkt = parseFloat(Punktewert_Kalk || 0);
       let storno = parseFloat(Stornowert_in_CHF || 0);
       let provision = parseFloat(Provision_inkl_Storno || 0);
@@ -61,6 +63,9 @@
   <td class="border px-2 py-1 break-words text-left align-middle">${kontakt}</td>
   <td class="border px-2 py-1 break-words text-left align-middle">${gesellschaft}</td>
   <td class="border px-2 py-1 break-words text-left align-middle">${abschluss}</td>
+
+<td class="border px-2 py-1 break-words text-left align-middle">${tippgeber}</td>
+
   <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
     2
   )}</td>
@@ -95,30 +100,32 @@
     // Get Deals Data
     let getFirstDealData = getFirstDeal?.data[0];
 
-    // All getMitarbeiter Details
-    let getMitarbeiterDetails = await ZOHO.CRM.API.getRecord({
-      Entity: "Mitarbeiter1",
-      RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
-    });
-    // console.log(getMitarbeiterDetails);
+    // check if there any Mitarbeiter
+    if (getFirstDealData?.Mitarbeiter?.id) {
+      // getMitarbeiter Details
+      let getMitarbeiterDetails = await ZOHO.CRM.API.getRecord({
+        Entity: "Mitarbeiter1",
+        RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
+      });
+      // console.log(getMitarbeiterDetails);
 
-    // Get Mitarbeiter Data
-    let getMitarbeiterData = getMitarbeiterDetails?.data[0];
+      // Get Mitarbeiter Data
+      let getMitarbeiterData = getMitarbeiterDetails?.data[0];
 
-    const getFullDateTime = () => {
-      const today = new Date();
-      const day = String(today.getDate()).padStart(2, "0");
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const year = today.getFullYear();
-      return `${day}.${month}.${year}`;
-    };
+      const getFullDateTime = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, "0");
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const year = today.getFullYear();
+        return `${day}.${month}.${year}`;
+      };
 
-    // For Fields Form Mitarbeiter
-    let { Vorname, Nachname, Strasse_Hausnummer, PLZ, Ort } =
-      getMitarbeiterData;
+      // For Fields Form Mitarbeiter
+      let { Vorname, Nachname, Strasse_Hausnummer, PLZ, Ort } =
+        getMitarbeiterData;
 
-    // Inject Abrechnung HTML
-    document.getElementById("abrechnung").innerHTML = `
+      // Inject Abrechnung HTML
+      document.getElementById("abrechnung").innerHTML = `
   <section class="mb-6">
     <p class="mb-1 font-semibold">${Vorname} ${Nachname}</p>
     <p class="mb-1">${Strasse_Hausnummer}</p>
@@ -126,6 +133,9 @@
     <p class="text-right">Cham, ${getFullDateTime()}</p>
   </section>
 `;
+    } else {
+      alert("No Mitarbeiter Found");
+    }
   });
 
   ZOHO.embeddedApp.init();

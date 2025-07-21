@@ -36,6 +36,7 @@
       });
 
       let dealData = getAllSelectedDeals?.data[0];
+      // console.log(dealData);
 
       // Get fields from each deal
       let {
@@ -45,12 +46,14 @@
         Gesellschaft,
         Closing_Date,
         Stornowert_in_CHF,
+        Tippgeber,
       } = dealData;
 
       // Fallbacks and formatting
-      let kontakt = Contact_Name?.name || "NA";
-      let gesellschaft = Gesellschaft?.name || "NA";
-      let abschluss = formatDate(Closing_Date) || "NA";
+      let kontakt = Contact_Name?.name || " ";
+      let gesellschaft = Gesellschaft?.name || " ";
+      let abschluss = formatDate(Closing_Date) || " ";
+      let tippgeber = Tippgeber?.name || " ";
       let chfPunkt = parseFloat(Punktewert_Kalk || 0);
       let storno = parseFloat(Stornowert_in_CHF || 0);
       let provision = parseFloat(Provision_inkl_Storno || 0);
@@ -61,6 +64,9 @@
   <td class="border px-2 py-1 break-words text-left align-middle">${kontakt}</td>
   <td class="border px-2 py-1 break-words text-left align-middle">${gesellschaft}</td>
   <td class="border px-2 py-1 break-words text-left align-middle">${abschluss}</td>
+
+<td class="border px-2 py-1 break-words text-left align-middle">${tippgeber}</td>
+
   <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
     2
   )}</td>
@@ -95,21 +101,77 @@
     // Get Deals Data
     let getFirstDealData = getFirstDeal?.data[0];
 
-    // All getMitarbeiter Details
-    let getMitarbeiterDetails = await ZOHO.CRM.API.getRecord({
-      Entity: "Mitarbeiter1",
-      RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
-    });
-    // console.log(getMitarbeiterDetails);
+    // check if there any Mitarbeiter
+    if (getFirstDealData?.Mitarbeiter?.id) {
+      // All getMitarbeiter Details
+      let getMitarbeiterDetails = await ZOHO.CRM.API.getRecord({
+        Entity: "Mitarbeiter1",
+        RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
+      });
+      // console.log(getMitarbeiterDetails);
 
-    // Get Mitarbeiter Data
-    let getMitarbeiterData = getMitarbeiterDetails?.data[0];
+      // Get Mitarbeiter Data
+      let getMitarbeiterData = getMitarbeiterDetails?.data[0];
 
-    // Date For Top Right
-    const getMothYear = () => {
-      const getCurrntMonth = new Date().getMonth();
-      const getCurrntYear = new Date().getFullYear();
-      const monthList = [
+      // Date For Top Right
+      const getMothYear = () => {
+        const getCurrntMonth = new Date().getMonth();
+        const getCurrntYear = new Date().getFullYear();
+        const monthList = [
+          "Januar",
+          "Februar",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "August",
+          "September",
+          "Oktober",
+          "November",
+          "Dezember",
+        ];
+        return monthList[getCurrntMonth] + " " + getCurrntYear;
+      };
+      const getFullDateTime = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, "0");
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const year = today.getFullYear();
+        return `${day}.${month}.${year}`;
+      };
+
+      // For Fields Form Mitarbeiter
+      let {
+        Vorname,
+        Nachname,
+        Strasse_Hausnummer,
+        PLZ,
+        Ort,
+        Bonus_Bemerkung,
+        Bonus,
+        AHV,
+        ALV,
+        NBU,
+        BVG,
+        KTG,
+        Kinderzulage,
+        Spesen,
+        Sonstiges,
+        IBAN_f_r_Auszahlungen,
+        Total_Stornokonto,
+        Total_Punkte,
+        Differenz_zur_n_chsten_Stufe,
+        N_chste_St_fe,
+        Storno_in,
+      } = getMitarbeiterData;
+
+      /* Start Calculation */
+      let BRUTTOLOHNI = (sumProvision + Bonus).toFixed(2);
+      // let stornoreserve = parseFloat(((sumProvision + Bonus) * 0.15).toFixed(2));
+
+      // get data from Storno effektiv
+      const month = [
         "Januar",
         "Februar",
         "März",
@@ -122,125 +184,71 @@
         "Oktober",
         "November",
         "Dezember",
-      ];
-      return monthList[getCurrntMonth] + " " + getCurrntYear;
-    };
-    const getFullDateTime = () => {
-      const today = new Date();
-      const day = String(today.getDate()).padStart(2, "0");
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const year = today.getFullYear();
-      return `${day}.${month}.${year}`;
-    };
+      ][new Date().getMonth()];
+      const year = new Date().getFullYear().toString();
+      const list = getMitarbeiterData?.Storno_effektiv || [];
 
-    // For Fields Form Mitarbeiter
-    let {
-      Vorname,
-      Nachname,
-      Strasse_Hausnummer,
-      PLZ,
-      Ort,
-      Bonus_Bemerkung,
-      Bonus,
-      AHV,
-      ALV,
-      NBU,
-      BVG,
-      KTG,
-      Kinderzulage,
-      Spesen,
-      Sonstiges,
-      IBAN_f_r_Auszahlungen,
-      Total_Stornokonto,
-      Total_Punkte,
-      Differenz_zur_n_chsten_Stufe,
-      N_chste_St_fe,
-      Storno_in,
-    } = getMitarbeiterData;
+      const match = list.find((e) => e.Monat === month && e.Jahr === year);
+      const stornoEffektiv = match ? parseFloat(match.Sornowert || 0) : 0.0;
 
-    /* Start Calculation */
-    let BRUTTOLOHNI = (sumProvision + Bonus).toFixed(2);
-    // let stornoreserve = parseFloat(((sumProvision + Bonus) * 0.15).toFixed(2));
+      let BRUTTOLOHNII = parseFloat(
+        BRUTTOLOHNI - (Math.abs(sumStorno) + Math.abs(stornoEffektiv))
+      ).toFixed(2);
 
-    // get data from Storno effektiv
-    const month = [
-      "Januar",
-      "Februar",
-      "März",
-      "April",
-      "Mai",
-      "Juni",
-      "Juli",
-      "August",
-      "September",
-      "Oktober",
-      "November",
-      "Dezember",
-    ][new Date().getMonth()];
-    const year = new Date().getFullYear().toString();
-    const list = getMitarbeiterData?.Storno_effektiv || [];
+      let AHVPercentage = 0.0;
+      let ALVPercentage = 0.0;
+      let NBUPercentage = 0.0;
+      let KTGPercentage = 0.0;
+      let getBVG = 0.0;
+      let TOTALAbzüge = 0.0;
 
-    const match = list.find((e) => e.Monat === month && e.Jahr === year);
-    const stornoEffektiv = match ? parseFloat(match.Sornowert || 0) : 0.0;
+      if (BRUTTOLOHNII >= 0) {
+        AHVPercentage =
+          parseFloat(((BRUTTOLOHNII * AHV) / 100).toFixed(2)) || 0.0;
+        ALVPercentage =
+          parseFloat(((BRUTTOLOHNII * ALV) / 100).toFixed(2)) || 0.0;
+        NBUPercentage =
+          parseFloat(((BRUTTOLOHNII * NBU) / 100).toFixed(2)) || 0.0;
+        KTGPercentage =
+          parseFloat(((BRUTTOLOHNII * KTG) / 100).toFixed(2)) || 0.0;
+        getBVG = BVG;
+        TOTALAbzüge =
+          (
+            AHVPercentage +
+            ALVPercentage +
+            NBUPercentage +
+            BVG +
+            KTGPercentage
+          ).toFixed(2) || 0.0;
+      }
+      // Total TOTALAbzüge
 
-    let BRUTTOLOHNII = parseFloat(
-      BRUTTOLOHNI - (Math.abs(sumStorno) + Math.abs(stornoEffektiv))
-    ).toFixed(2);
+      let NETTOLOHNI = (BRUTTOLOHNII - Math.abs(TOTALAbzüge)).toFixed(2) || 0.0;
 
-    let AHVPercentage = 0.0;
-    let ALVPercentage = 0.0;
-    let NBUPercentage = 0.0;
-    let KTGPercentage = 0.0;
-    let getBVG = 0.0;
-    let TOTALAbzüge = 0.0;
+      // Total NETTOLOHN II
+      let TotalNETTOLOHNII =
+        parseFloat(Kinderzulage || 0) +
+        parseFloat(Spesen || 0) +
+        parseFloat(Sonstiges || 0);
 
-    if (BRUTTOLOHNII >= 0) {
-      AHVPercentage =
-        parseFloat(((BRUTTOLOHNII * AHV) / 100).toFixed(2)) || 0.0;
-      ALVPercentage =
-        parseFloat(((BRUTTOLOHNII * ALV) / 100).toFixed(2)) || 0.0;
-      NBUPercentage =
-        parseFloat(((BRUTTOLOHNII * NBU) / 100).toFixed(2)) || 0.0;
-      KTGPercentage =
-        parseFloat(((BRUTTOLOHNII * KTG) / 100).toFixed(2)) || 0.0;
-      getBVG = BVG;
-      TOTALAbzüge =
-        (
-          AHVPercentage +
-          ALVPercentage +
-          NBUPercentage +
-          BVG +
-          KTGPercentage
-        ).toFixed(2) || 0.0;
-    }
-    // Total TOTALAbzüge
+      let NETTOLOHNII = parseFloat(NETTOLOHNI || 0) + TotalNETTOLOHNII;
 
-    let NETTOLOHNI = (BRUTTOLOHNII - Math.abs(TOTALAbzüge)).toFixed(2) || 0.0;
+      let TotalStornokonto = parseFloat(Total_Stornokonto) || 0.0;
 
-    // Total NETTOLOHN II
-    let TotalNETTOLOHNII =
-      parseFloat(Kinderzulage || 0) +
-      parseFloat(Spesen || 0) +
-      parseFloat(Sonstiges || 0);
+      let SaldoStornokontoNeu =
+        parseFloat((TotalStornokonto + sumStorno).toFixed(2)) || 0.0;
 
-    let NETTOLOHNII = parseFloat(NETTOLOHNI || 0) + TotalNETTOLOHNII;
+      let TotalPunkte = parseFloat(Total_Punkte) || 0.0;
 
-    let TotalStornokonto = parseFloat(Total_Stornokonto) || 0.0;
+      let PunkteSaldoNeu =
+        parseFloat((sumPunkte + TotalPunkte).toFixed(2)) || 0.0;
 
-    let SaldoStornokontoNeu =
-      parseFloat((TotalStornokonto + sumStorno).toFixed(2)) || 0.0;
+      let DifferenzZurNChstenStufe =
+        parseFloat(Differenz_zur_n_chsten_Stufe) || 0.0;
+      /* End Calculation */
 
-    let TotalPunkte = parseFloat(Total_Punkte) || 0.0;
-
-    let PunkteSaldoNeu =
-      parseFloat((sumPunkte + TotalPunkte).toFixed(2)) || 0.0;
-
-    let DifferenzZurNChstenStufe =
-      parseFloat(Differenz_zur_n_chsten_Stufe) || 0.0;
-    /* End Calculation */
-
-    // Inject Abrechnung HTML
-    const html = `
+      // Inject Abrechnung HTML
+      const html = `
   <section class="mb-6">
     <p class="mb-1 font-semibold">${Vorname} ${Nachname}</p>
     <p class="mb-1">${Strasse_Hausnummer}</p>
@@ -264,7 +272,7 @@
         <td class="text-right px-4">${sumProvision.toFixed(2) || 0.0}</td>
       </tr>
       <tr class="border-b">
-        <td class="py-1 px-4">+ Bonus ${Bonus_Bemerkung || "NA"}</td>
+        <td class="py-1 px-4">+ Bonus ${Bonus_Bemerkung || " "}</td>
         <td></td><td></td>
         <td class="text-right px-4"> ${parseFloat(Bonus || 0.0).toFixed(2)}</td>
       </tr>
@@ -363,7 +371,7 @@
 <div class="grid grid-cols-2 gap-y-1 gap-x-16 justify-items-start text-sm w-fit">
 
   <div>Auszahlung auf folgendes Konto:</div>
-  <div class="text-right font-semibold">${IBAN_f_r_Auszahlungen || "NA"}</div>
+  <div class="text-right font-semibold">${IBAN_f_r_Auszahlungen || " "}</div>
 
   <div>Storno diesen Monat:</div>
   <div class="text-right font-semibold">${parseFloat(sumStorno).toFixed(
@@ -388,14 +396,17 @@
   <div>Diff. zur nächsten Stufe:</div>
   <div class="text-right font-semibold">
     ${DifferenzZurNChstenStufe || 0.0}
-    (${N_chste_St_fe || "NA"})
+    (${N_chste_St_fe || " "})
   </div>
 </div>
 
   </div>
 `;
 
-    document.getElementById("abrechnung").innerHTML = html;
+      document.getElementById("abrechnung").innerHTML = html;
+    } else {
+      alert("No Mitarbeiter Found");
+    }
   });
 
   ZOHO.embeddedApp.init();

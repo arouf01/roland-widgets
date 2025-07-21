@@ -105,7 +105,7 @@ const createTippgeberTable = (tippgeberData) => {
             <td class="text-right px-4">${sumProvision.toFixed(2) || 0.0}</td>
           </tr>
           <tr class="border-b">
-            <td class="py-1 px-4">+ Bonus ${Bonus_Bemerkung || "NA"}</td>
+            <td class="py-1 px-4">+ Bonus ${Bonus_Bemerkung || " "}</td>
             <td></td><td></td>
             <td class="text-right px-4"> ${parseFloat(Bonus || 0.0).toFixed(
               2
@@ -217,7 +217,7 @@ const createTippgeberTable = (tippgeberData) => {
 
       <div>Auszahlung auf folgendes Konto:</div>
       <div class="text-right font-semibold">${
-        IBAN_f_r_Auszahlungen || "NA"
+        IBAN_f_r_Auszahlungen || " "
       }</div>
 
       <div>Storno diesen Monat:</div>
@@ -251,7 +251,7 @@ const createTippgeberTable = (tippgeberData) => {
       <div>Diff. zur nächsten Stufe:</div>
       <div class="text-right font-semibold">
         ${parseFloat(Differenz_zur_n_chsten_Stufe || 0.0).toFixed(2)}
-        (${N_chste_St_fe || "NA"})
+        (${N_chste_St_fe || " "})
       </div>
     </div>
 
