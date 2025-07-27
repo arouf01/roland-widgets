@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoho CRM Widgets</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Zoho Embedded App SDK -->
+    <script src="https://js.zohocdn.com/embeddedapp/v1.0/embeddedApp.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- CSS -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body class="bg-gray-50 font-sans">
+    <!-- <h1 class="text-red-600 bold">Widgets By Abdur Rouf</h1> -->
+    <div
+      class="bg-white text-sm text-gray-900 font-serif p-8 max-w-5xl mx-auto my-8"
+    >
+      <!-- Table 1 -->
+      <div id="mitarbeiterStornomeldungContainer"></div>
+
+      <!-- Table 2 -->
+      <h2 class="text-lg font-semibold mt-10 mb-2" id="headerMonthYear"></h2>
+
+      <table
+        class="w-full border border-collapse border-gray-400 text-sm break-words"
+      >
+        <thead class="bg-gray-100">
+          <tr>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
+            >
+              Berater / Vermittler
+            </th>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
+            >
+              Kunde
+            </th>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
+            >
+              Produkt
+            </th>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
+            >
+              Gesellschaft
+            </th>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
+            >
+              Stornogrund
+            </th>
+            <th
+              class="border px-4 py-1 break-words w-1/6 text-right align-middle"
+            >
+              Stornobetrag
+            </th>
+          </tr>
+        </thead>
+
+        <tbody id="dynamicTableBody">
+          <!-- Dynamic rows go here -->
+        </tbody>
+
+        <tfoot class="font-semibold">
+          <tr>
+            <td
+              class="border px-20 py-1 break-words text-right align-middle"
+              colspan="5"
+            >
+              Total Storno
+            </td>
+            <td
+              class="border px-4 py-1 break-words text-right align-middle"
+              id="totalSornowert"
+            >
+              CHF 0.00
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="mt-6" id="Stornotext"></p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
+    <!-- <script src="./index.js"></script> -->
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
