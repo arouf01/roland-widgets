@@ -21,24 +21,32 @@
       return `${day}.${month}.${year}`;
     };
 
+    // Get Full Date Time
+    const getFullDateTime = () => {
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, "0");
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const year = today.getFullYear();
+      return `${day}.${month}.${year}`;
+    };
+
     // Loop for all the selected Deals
     let tbody = document.getElementById("dynamicTableBody");
     let sumPunkte = 0;
+    let sumPunkte2 = 0;
     let sumStorno = 0;
     let sumProvision = 0;
 
     let getSelectDeals = data?.EntityId;
 
-    getSelectDeals.forEach(async (dealId) => {
+    for (const dealId of getSelectDeals) {
       let getAllSelectedDeals = await ZOHO.CRM.API.getRecord({
         Entity: data?.Entity,
         RecordID: dealId,
       });
 
       let dealData = getAllSelectedDeals?.data[0];
-      // console.log(dealData);
 
-      // Get fields from each deal
       let {
         Provision_inkl_Storno,
         Punktewert_Kalk,
@@ -49,48 +57,61 @@
         Tippgeber,
       } = dealData;
 
-      // Fallbacks and formatting
       let kontakt = Contact_Name?.name || " ";
       let gesellschaft = Gesellschaft?.name || " ";
       let abschluss = formatDate(Closing_Date) || " ";
       let tippgeber = Tippgeber?.name || " ";
+      let getTippgeberID = Tippgeber?.id || " ";
       let chfPunkt = parseFloat(Punktewert_Kalk || 0);
       let storno = parseFloat(Stornowert_in_CHF || 0);
       let provision = parseFloat(Provision_inkl_Storno || 0);
 
-      // Append table row
+      let getVerg_tungsstufe = 0.0;
+      if (Tippgeber?.id) {
+        let getTippgeber = await ZOHO.CRM.API.getRecord({
+          Entity: "Tippgeber1",
+          RecordID: getTippgeberID,
+        });
+        let tippgeberData = getTippgeber?.data[0];
+
+        getVerg_tungsstufe = parseFloat(tippgeberData?.Verg_tungsstufe || 0.0);
+      } else {
+        getVerg_tungsstufe = 0.0;
+      }
+
       let row = document.createElement("tr");
       row.innerHTML = `
-  <td class="border px-2 py-1 break-words text-left align-middle">${kontakt}</td>
-  <td class="border px-2 py-1 break-words text-left align-middle">${gesellschaft}</td>
-  <td class="border px-2 py-1 break-words text-left align-middle">${abschluss}</td>
-
-<td class="border px-2 py-1 break-words text-left align-middle">${tippgeber}</td>
-
-  <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
-    2
-  )}</td>
-  <td class="border px-4 py-1 break-words text-right align-middle">${storno.toFixed(
-    2
-  )}</td>
-  <td class="border px-4 py-1 break-words text-right align-middle">${provision.toFixed(
-    2
-  )}</td>
-`;
+    <td class="border px-2 py-1 break-words text-left align-middle">${kontakt}</td>
+    <td class="border px-2 py-1 break-words text-left align-middle">${gesellschaft}</td>
+    <td class="border px-2 py-1 break-words text-left align-middle">${abschluss}</td>
+    <td class="border px-2 py-1 break-words text-left align-middle">${tippgeber}</td>
+    <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
+      2
+    )}</td>
+    <td class="border px-4 py-1 break-words text-right align-middle">${getVerg_tungsstufe.toFixed(
+      2
+    )}</td>
+    <td class="border px-4 py-1 break-words text-right align-middle">${storno.toFixed(
+      2
+    )}</td>
+    <td class="border px-4 py-1 break-words text-right align-middle">${provision.toFixed(
+      2
+    )}</td>
+  `;
 
       tbody.appendChild(row);
 
-      // Add to totals
       sumPunkte += chfPunkt;
+      sumPunkte2 += getVerg_tungsstufe;
       sumStorno += storno;
       sumProvision += provision;
 
-      // Update footer totals (inside the loop so it's live-updated per row)
       document.getElementById("sumPunkte").textContent = sumPunkte.toFixed(2);
+      document.getElementById("sumPunkte2").textContent = sumPunkte2.toFixed(2);
       document.getElementById("sumStorno").textContent = sumStorno.toFixed(2);
       document.getElementById("sumProvision").textContent =
         sumProvision.toFixed(2);
-    });
+    }
 
     // Get The First Deal Details
     let getFirstDeal = await ZOHO.CRM.API.getRecord({
@@ -132,13 +153,6 @@
           "Dezember",
         ];
         return monthList[getCurrntMonth] + " " + getCurrntYear;
-      };
-      const getFullDateTime = () => {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, "0");
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const year = today.getFullYear();
-        return `${day}.${month}.${year}`;
       };
 
       // For Fields Form Mitarbeiter
@@ -241,7 +255,7 @@
       let TotalPunkte = parseFloat(Total_Punkte) || 0.0;
 
       let PunkteSaldoNeu =
-        parseFloat((sumPunkte + TotalPunkte).toFixed(2)) || 0.0;
+        parseFloat((sumPunkte2 + TotalPunkte).toFixed(2)) || 0.0;
 
       let DifferenzZurNChstenStufe =
         parseFloat(Differenz_zur_n_chsten_Stufe) || 0.0;
@@ -385,7 +399,7 @@
   <div class="text-right font-semibold">${SaldoStornokontoNeu}</div>
 
   <div>Punkte diesen Monat:</div>
-  <div class="text-right font-semibold">${sumPunkte.toFixed(2)}</div>
+  <div class="text-right font-semibold">${sumPunkte2.toFixed(2)}</div>
 
   <div>Punkte Saldo alt:</div>
   <div class="text-right font-semibold">${TotalPunkte}</div>

@@ -39,9 +39,11 @@ const createTippgeberTable = (tippgeberData) => {
   let BRUTTOLOHNI = sumProvision + Bonus;
   let StornoEffektiv =
     utils.getStornoEffektiv(Storno_effektiv_Tippgeber) || 0.0;
-  let BRUTTOLOHNII = parseFloat(
-    BRUTTOLOHNI - (Math.abs(sumStorno) + Math.abs(StornoEffektiv)) || 0.0
-  ).toFixed(2);
+  // let BRUTTOLOHNII = parseFloat(
+  //   BRUTTOLOHNI - (Math.abs(sumStorno) + Math.abs(StornoEffektiv)) || 0.0
+  // ).toFixed(2);
+
+  let BRUTTOLOHNII = BRUTTOLOHNI;
 
   let AHVPercentage = 0.0;
   let ALVPercentage = 0.0;
