@@ -1,3 +1,4 @@
+import * as utils from "./utils.js";
 // Load Zoho SDK
 (function loadZohoSdk(callback) {
   if (typeof ZOHO === "undefined") {
@@ -11,15 +12,6 @@
 })(() => {
   ZOHO.embeddedApp.on("PageLoad", async (data) => {
     ZOHO.CRM.UI.Resize({ height: "100%", width: "100%" });
-
-    // Format Date
-    const formatDate = (dateStr) => {
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${day}.${month}.${year}`;
-    };
 
     // Loop for all the selected Deals
     let tbody = document.getElementById("dynamicTableBody");
@@ -46,16 +38,25 @@
         Closing_Date,
         Stornowert_in_CHF,
         Tippgeber,
+        Punktestufe,
+        Punktestufe_TG,
       } = dealData;
 
       // Fallbacks and formatting
       let kontakt = Contact_Name?.name || " ";
       let gesellschaft = Gesellschaft?.name || " ";
-      let abschluss = formatDate(Closing_Date) || " ";
+      let abschluss = utils.formatDate(Closing_Date) || " ";
       let tippgeber = Tippgeber?.name || " ";
       let chfPunkt = parseFloat(Punktewert_Kalk || 0);
       let storno = parseFloat(Stornowert_in_CHF || 0);
       let provision = parseFloat(Provision_inkl_Storno || 0);
+      let hasTippgeber = Tippgeber?.name;
+
+      let punktestufeValue = parseFloat(Punktestufe) || 0;
+      let punktestufeTGValue = parseFloat(Punktestufe_TG) || 0;
+      let getPunktestufe = hasTippgeber
+        ? Math.abs(punktestufeValue) - Math.abs(punktestufeTGValue)
+        : punktestufeValue;
 
       // Append table row
       let row = document.createElement("tr");
@@ -67,6 +68,9 @@
 <td class="border px-2 py-1 break-words text-left align-middle">${tippgeber}</td>
 
   <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
+    2
+  )}</td>
+  <td class="border px-4 py-1 break-words text-right align-middle">${getPunktestufe.toFixed(
     2
   )}</td>
   <td class="border px-4 py-1 break-words text-right align-middle">${storno.toFixed(
@@ -107,18 +111,9 @@
         Entity: "Mitarbeiter1",
         RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
       });
-      // console.log(getMitarbeiterDetails);
 
       // Get Mitarbeiter Data
       let getMitarbeiterData = getMitarbeiterDetails?.data[0];
-
-      const getFullDateTime = () => {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, "0");
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const year = today.getFullYear();
-        return `${day}.${month}.${year}`;
-      };
 
       // For Fields Form Mitarbeiter
       let { Vorname, Nachname, Strasse_Hausnummer, PLZ, Ort } =
@@ -130,7 +125,7 @@
     <p class="mb-1 font-semibold">${Vorname} ${Nachname}</p>
     <p class="mb-1">${Strasse_Hausnummer}</p>
     <p class="mb-1">${PLZ} ${Ort}</p>
-    <p class="text-right">Cham, ${getFullDateTime()}</p>
+    <p class="text-right">Cham, ${utils.getFullDate()}</p>
   </section>
 `;
     } else {

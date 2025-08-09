@@ -1,3 +1,4 @@
+import * as utils from "./utils.js";
 // Load Zoho SDK
 (function loadZohoSdk(callback) {
   if (typeof ZOHO === "undefined") {
@@ -12,28 +13,10 @@
   ZOHO.embeddedApp.on("PageLoad", async (data) => {
     ZOHO.CRM.UI.Resize({ height: "100%", width: "100%" });
 
-    // Format Date
-    const formatDate = (dateStr) => {
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${day}.${month}.${year}`;
-    };
-
-    // Get Full Date Time
-    const getFullDateTime = () => {
-      const today = new Date();
-      const day = String(today.getDate()).padStart(2, "0");
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const year = today.getFullYear();
-      return `${day}.${month}.${year}`;
-    };
-
     // Loop for all the selected Deals
     let tbody = document.getElementById("dynamicTableBody");
     let sumPunkte = 0;
-    let sumPunkte2 = 0;
+    // let sumPunkte2 = 0;
     let sumStorno = 0;
     let sumProvision = 0;
 
@@ -55,17 +38,27 @@
         Closing_Date,
         Stornowert_in_CHF,
         Tippgeber,
+        Punktestufe,
+        Punktestufe_TG,
       } = dealData;
 
       let kontakt = Contact_Name?.name || " ";
       let gesellschaft = Gesellschaft?.name || " ";
-      let abschluss = formatDate(Closing_Date) || " ";
+      let abschluss = utils.formatDate(Closing_Date) || " ";
       let tippgeber = Tippgeber?.name || " ";
-      let getTippgeberID = Tippgeber?.id || " ";
+      // let getTippgeberID = Tippgeber?.id || " ";
       let chfPunkt = parseFloat(Punktewert_Kalk || 0);
       let storno = parseFloat(Stornowert_in_CHF || 0);
       let provision = parseFloat(Provision_inkl_Storno || 0);
+      let hasTippgeber = Tippgeber?.name;
 
+      let punktestufeValue = parseFloat(Punktestufe) || 0;
+      let punktestufeTGValue = parseFloat(Punktestufe_TG) || 0;
+      let getPunktestufe = hasTippgeber
+        ? Math.abs(punktestufeValue) - Math.abs(punktestufeTGValue)
+        : punktestufeValue;
+
+      /*
       let getVerg_tungsstufe = 0.0;
       if (Tippgeber?.id) {
         let getTippgeber = await ZOHO.CRM.API.getRecord({
@@ -78,6 +71,7 @@
       } else {
         getVerg_tungsstufe = 0.0;
       }
+*/
 
       let row = document.createElement("tr");
       row.innerHTML = `
@@ -88,7 +82,7 @@
     <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
       2
     )}</td>
-    <td class="border px-4 py-1 break-words text-right align-middle">${getVerg_tungsstufe.toFixed(
+    <td class="border px-4 py-1 break-words text-right align-middle">${getPunktestufe.toFixed(
       2
     )}</td>
     <td class="border px-4 py-1 break-words text-right align-middle">${storno.toFixed(
@@ -102,12 +96,12 @@
       tbody.appendChild(row);
 
       sumPunkte += chfPunkt;
-      sumPunkte2 += getVerg_tungsstufe;
+      // sumPunkte2 += getVerg_tungsstufe;
       sumStorno += storno;
       sumProvision += provision;
 
       document.getElementById("sumPunkte").textContent = sumPunkte.toFixed(2);
-      document.getElementById("sumPunkte2").textContent = sumPunkte2.toFixed(2);
+      // document.getElementById("sumPunkte2").textContent = sumPunkte2.toFixed(2);
       document.getElementById("sumStorno").textContent = sumStorno.toFixed(2);
       document.getElementById("sumProvision").textContent =
         sumProvision.toFixed(2);
@@ -134,26 +128,11 @@
       // Get Mitarbeiter Data
       let getMitarbeiterData = getMitarbeiterDetails?.data[0];
 
-      // Date For Top Right
-      const getMothYear = () => {
-        const getCurrntMonth = new Date().getMonth();
-        const getCurrntYear = new Date().getFullYear();
-        const monthList = [
-          "Januar",
-          "Februar",
-          "März",
-          "April",
-          "Mai",
-          "Juni",
-          "Juli",
-          "August",
-          "September",
-          "Oktober",
-          "November",
-          "Dezember",
-        ];
-        return monthList[getCurrntMonth] + " " + getCurrntYear;
-      };
+      // Get Current Month and Year
+      const getCurrentMonthYear = utils.getMothYear();
+
+      // Get Full Date
+      const getFullDate = utils.getFullDate();
 
       // For Fields Form Mitarbeiter
       let {
@@ -181,7 +160,7 @@
       } = getMitarbeiterData;
 
       /* Start Calculation */
-      let BRUTTOLOHNI = (sumProvision + Bonus).toFixed(2);
+      let BRUTTOLOHNI = parseFloat(sumProvision + Bonus).toFixed(2);
       // let stornoreserve = parseFloat(((sumProvision + Bonus) * 0.15).toFixed(2));
 
       // get data from Storno effektiv
@@ -217,14 +196,10 @@
       let TOTALAbzüge = 0.0;
 
       if (BRUTTOLOHNII >= 0) {
-        AHVPercentage =
-          parseFloat(((BRUTTOLOHNII * AHV) / 100).toFixed(2)) || 0.0;
-        ALVPercentage =
-          parseFloat(((BRUTTOLOHNII * ALV) / 100).toFixed(2)) || 0.0;
-        NBUPercentage =
-          parseFloat(((BRUTTOLOHNII * NBU) / 100).toFixed(2)) || 0.0;
-        KTGPercentage =
-          parseFloat(((BRUTTOLOHNII * KTG) / 100).toFixed(2)) || 0.0;
+        AHVPercentage = utils.CalculatePercentage(BRUTTOLOHNII, AHV);
+        ALVPercentage = utils.CalculatePercentage(BRUTTOLOHNII, ALV);
+        NBUPercentage = utils.CalculatePercentage(BRUTTOLOHNII, NBU);
+        KTGPercentage = utils.CalculatePercentage(BRUTTOLOHNII, KTG);
         getBVG = BVG;
         TOTALAbzüge =
           (
@@ -235,7 +210,6 @@
             KTGPercentage
           ).toFixed(2) || 0.0;
       }
-      // Total TOTALAbzüge
 
       let NETTOLOHNI = (BRUTTOLOHNII - Math.abs(TOTALAbzüge)).toFixed(2) || 0.0;
 
@@ -255,7 +229,7 @@
       let TotalPunkte = parseFloat(Total_Punkte) || 0.0;
 
       let PunkteSaldoNeu =
-        parseFloat((sumPunkte2 + TotalPunkte).toFixed(2)) || 0.0;
+        parseFloat((sumPunkte + TotalPunkte).toFixed(2)) || 0.0;
 
       let DifferenzZurNChstenStufe =
         parseFloat(Differenz_zur_n_chsten_Stufe) || 0.0;
@@ -267,10 +241,10 @@
     <p class="mb-1 font-semibold">${Vorname} ${Nachname}</p>
     <p class="mb-1">${Strasse_Hausnummer}</p>
     <p class="mb-1">${PLZ} ${Ort}</p>
-    <p class="text-right">Cham, ${getFullDateTime()}</p>
+    <p class="text-right">Cham, ${getFullDate}</p>
   </section>
 
-  <h2 class="text-xl font-bold mb-4 border-b pb-1">Abrechnung ${getMothYear()}</h2>
+  <h2 class="text-xl font-bold mb-4 border-b pb-1">Abrechnung ${getCurrentMonthYear}</h2>
 
   <table class="w-full mb-6 border border-collapse border-gray-300">
     <tbody>
@@ -399,7 +373,7 @@
   <div class="text-right font-semibold">${SaldoStornokontoNeu}</div>
 
   <div>Punkte diesen Monat:</div>
-  <div class="text-right font-semibold">${sumPunkte2.toFixed(2)}</div>
+  <div class="text-right font-semibold">${sumPunkte.toFixed(2)}</div>
 
   <div>Punkte Saldo alt:</div>
   <div class="text-right font-semibold">${TotalPunkte}</div>
