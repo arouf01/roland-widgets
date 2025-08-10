@@ -16,6 +16,7 @@ const createDealTable = (allDealData) => {
       Punktewert_Kalk_TG,
       Stornowert_in_CHF_TG,
       Provision_inkl_Storno_TG,
+      Punktestufe_TG,
     } = deal;
 
     // Fallbacks and formatting
@@ -25,6 +26,8 @@ const createDealTable = (allDealData) => {
     let chfPunkt = parseFloat(Punktewert_Kalk_TG || 0);
     let storno = parseFloat(Stornowert_in_CHF_TG || 0);
     let provision = parseFloat(Provision_inkl_Storno_TG || 0);
+
+    let getPunktestufe_TG = parseFloat(Punktestufe_TG) || "";
 
     // Append table row
     let row = document.createElement("tr");
@@ -38,6 +41,9 @@ const createDealTable = (allDealData) => {
     <td class="border px-4 py-1 break-words text-right align-middle">${chfPunkt.toFixed(
       2
     )}</td>
+      <td class="border px-4 py-1 break-words text-right align-middle">${getPunktestufe_TG.toFixed(
+        2
+      )}</td>
 
     <td class="border px-4 py-1 break-words text-right align-middle">${storno.toFixed(
       2
