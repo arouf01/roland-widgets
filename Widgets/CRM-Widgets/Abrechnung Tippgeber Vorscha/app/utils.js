@@ -53,11 +53,15 @@ const getStornoEffektiv = (Storno_effektiv) => {
     "November",
     "Dezember",
   ][new Date().getMonth()];
+
   const year = new Date().getFullYear().toString();
   const list = Storno_effektiv || [];
 
-  const match = list.find((e) => e.Monat === month && e.Jahr === year);
-  let StornoEffektiv = match ? parseFloat(match.Sornowert || 0) : 0.0;
+  // Sum all entries for the current month and year
+  const StornoEffektiv = list
+    .filter((e) => e.Monat === month && e.Jahr === year)
+    .reduce((sum, e) => sum + (parseFloat(e.Sornowert) || 0), 0.0);
+
   return StornoEffektiv;
 };
 

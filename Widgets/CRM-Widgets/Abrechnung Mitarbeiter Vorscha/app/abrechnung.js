@@ -178,11 +178,14 @@ import * as utils from "./utils.js";
         "November",
         "Dezember",
       ][new Date().getMonth()];
+
       const year = new Date().getFullYear().toString();
       const list = getMitarbeiterData?.Storno_effektiv || [];
 
-      const match = list.find((e) => e.Monat === month && e.Jahr === year);
-      const stornoEffektiv = match ? parseFloat(match.Sornowert || 0) : 0.0;
+      // Filter all records matching month & year, then sum their values
+      const stornoEffektiv = list
+        .filter((e) => e.Monat === month && e.Jahr === year)
+        .reduce((sum, e) => sum + (parseFloat(e.Sornowert) || 0), 0.0);
 
       let BRUTTOLOHNII = parseFloat(
         BRUTTOLOHNI - (Math.abs(sumStorno) + Math.abs(stornoEffektiv))
