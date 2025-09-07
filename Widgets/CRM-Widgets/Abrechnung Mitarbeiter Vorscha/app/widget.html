@@ -28,101 +28,88 @@
   <body class="bg-gray-50 font-sans">
     <!-- Abrechnung Section -->
     <div
-      class="bg-white text-sm text-gray-900 font-serif p-8 max-w-3xl mx-auto my-8"
+      class="bg-white text-sm text-gray-900 font-serif p-4 sm:p-6 md:p-8 max-w-6xl mx-auto my-6 md:my-8 shadow-md rounded-lg"
     >
       <!-- Table 1 -->
       <div id="abrechnung"></div>
 
       <!-- Table 2 -->
-      <h2 class="text-lg font-semibold mt-10 mb-2">
+      <h2 class="text-lg font-semibold mt-8 mb-3">
         Übersicht provisionierte Verträge (Umsatzliste)
       </h2>
 
-      <table
-        class="w-full border border-collapse border-gray-400 text-sm break-words"
-      >
-        <thead class="bg-gray-100">
-          <tr>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
-            >
-              Kontakt
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
-            >
-              Gesellschaft
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
-            >
-              Abschluss
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-left align-middle"
-            >
-              Tippgeber
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-right align-middle"
-            >
-              Punktewert
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-right align-middle"
-            >
-              Punktestufe
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-right align-middle"
-            >
-              Storno
-            </th>
-            <th
-              class="border px-4 py-1 break-words w-1/6 text-right align-middle"
-            >
-              Provision
-            </th>
-          </tr>
-        </thead>
+      <!-- Responsive Wrapper -->
+      <div class="overflow-x-auto">
+        <table
+          class="min-w-full border border-collapse border-gray-400 text-xs sm:text-sm break-words"
+        >
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-2 sm:px-4 py-2 text-left align-middle">
+                Kontakt
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-left align-middle">
+                Gesellschaft
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-left align-middle">
+                Abschluss
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-left align-middle">
+                Tippgeber
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-right align-middle">
+                Punktewert
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-right align-middle">
+                Punktestufe
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-right align-middle">
+                Storno
+              </th>
+              <th class="border px-2 sm:px-4 py-2 text-right align-middle">
+                Provision
+              </th>
+            </tr>
+          </thead>
 
-        <tbody id="dynamicTableBody">
-          <!-- Dynamic rows go here; be sure they also include align-middle -->
-        </tbody>
+          <tbody id="dynamicTableBody">
+            <!-- Dynamic rows go here -->
+          </tbody>
 
-        <tfoot class="font-semibold">
-          <tr>
-            <td
-              class="border px-4 py-1 break-words text-left align-middle"
-              colspan="4"
-            >
-              Total
-            </td>
-            <td
-              class="border px-4 py-1 break-words text-right align-middle"
-              id="sumPunkte"
-            >
-              0
-            </td>
-            <td
-              class="border px-4 py-1 break-words text-right align-middle"
-              id="sumPunkte2"
-            ></td>
-            <td
-              class="border px-4 py-1 break-words text-right align-middle"
-              id="sumStorno"
-            >
-              0
-            </td>
-            <td
-              class="border px-4 py-1 break-words text-right align-middle"
-              id="sumProvision"
-            >
-              0
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+          <tfoot class="font-semibold">
+            <tr>
+              <td
+                class="border px-2 sm:px-4 py-2 text-left align-middle"
+                colspan="4"
+              >
+                Total
+              </td>
+              <td
+                class="border px-2 sm:px-4 py-2 text-right align-middle"
+                id="sumPunkte"
+              >
+                0
+              </td>
+              <td
+                class="border px-2 sm:px-4 py-2 text-right align-middle"
+                id="sumPunkte2"
+              ></td>
+              <td
+                class="border px-2 sm:px-4 py-2 text-right align-middle"
+                id="sumStorno"
+              >
+                0
+              </td>
+              <td
+                class="border px-2 sm:px-4 py-2 text-right align-middle"
+                id="sumProvision"
+              >
+                0
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
 
     <!-- Scripts -->
