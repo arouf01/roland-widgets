@@ -31,14 +31,14 @@ ZOHO.embeddedApp.on("PageLoad", async (data) => {
     Entity: `${data?.Entity}`,
     RecordID: `${data?.EntityId[0]}`,
   });
+
   // Get Deals Data
   let getFirstDealData = getFirstDeal?.data[0];
-
-  if (getFirstDealData?.Mitarbeiter?.id) {
+  if (getFirstDealData?.F_hrungskraft?.id) {
     // All get Tippgeber Details
     let getMitarbeiterDetails = await ZOHO.CRM.API.getRecord({
       Entity: "Mitarbeiter1",
-      RecordID: `${getFirstDealData?.Mitarbeiter?.id}`,
+      RecordID: `${getFirstDealData?.F_hrungskraft?.id}`,
     });
 
     // Get the Deal Fuhrungskraft Percentage
@@ -50,7 +50,7 @@ ZOHO.embeddedApp.on("PageLoad", async (data) => {
       getStornoreserveinFK
     );
   } else {
-    alert("No Mitarbeiter Found in the Vertrage");
+    alert("No Führungskraft Found in the Vertrage");
   }
 });
 
